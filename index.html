@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>InnoSaic — Data Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #2563eb;
+    --accent-light: #3b82f6;
+    --accent-dim: rgba(37,99,235,0.12);
+    --bg: #ffffff;
+    --bg-off: #f7f8fc;
+    --bg-dark: #080c14;
+    --ink: #0a0f1e;
+    --ink-mid: #3d4560;
+    --ink-dim: #8b92aa;
+    --border: rgba(10,15,30,0.08);
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 4px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── REVEAL ANIMATION ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 68px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow 0.3s;
+  }
+  nav.scrolled {
+    box-shadow: 0 2px 24px rgba(37,99,235,0.07);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: 0em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink-mid);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #fff !important;
+    padding: 9px 22px;
+    border-radius: var(--radius);
+    font-weight: 500 !important;
+    transition: background 0.2s, transform 0.15s !important;
+  }
+  .nav-cta:hover {
+    background: var(--accent-light) !important;
+    transform: translateY(-1px);
+    color: #fff !important;
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 68px;
+    background: var(--bg-dark);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(37,99,235,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 60% 40%, black 30%, transparent 80%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%);
+    top: 10%;
+    right: -100px;
+    pointer-events: none;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 56px 80px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--accent-light);
+  }
+
+  .hero-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 5vw, 4.75rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: #fff;
+    margin-bottom: 28px;
+  }
+  .hero-h1 .accent-word {
+    color: var(--accent-light);
+  }
+
+  .hero-sub {
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 0 0 rgba(37,99,235,0.4);
+  }
+  .btn-primary:hover {
+    background: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+  }
+
+  .btn-ghost {
+    color: rgba(255,255,255,0.7);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 400;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: #fff; }
+  .btn-ghost svg { transition: transform 0.2s; }
+  .btn-ghost:hover svg { transform: translateX(3px); }
+
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .hero-viz {
+    width: 420px;
+    height: 380px;
+    position: relative;
+  }
+
+  /* ─── ABOUT BAND ─── */
+  #about {
+    background: var(--bg-off);
+    padding: 80px 80px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .about-label {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 3rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .about-label span { color: var(--accent); }
+
+  .about-body {
+    font-size: 1.1rem;
+    color: var(--ink-mid);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+  .about-body strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ─── SECTION COMMON ─── */
+  section { scroll-margin-top: 68px; }
+
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 64px;
+  }
+  .section-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  /* ─── SERVICES ─── */
+  #services {
+    padding: 100px 80px;
+    background: var(--bg);
+  }
+
+  .service-engineering {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .se-content {
+    padding: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+  .se-content.dark { background: var(--bg-dark); }
+  .se-content.light { background: var(--bg-off); }
+
+  .service-number {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .service-number.on-dark { color: var(--accent-light); }
+  .service-number.on-light { color: var(--accent); }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .service-name.on-dark { color: #fff; }
+  .service-name.on-light { color: var(--ink); }
+
+  .service-tagline {
+    font-size: 1rem;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+  .service-tagline.on-dark { color: rgba(255,255,255,0.6); }
+  .service-tagline.on-light { color: var(--ink-mid); }
+
+  .service-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .service-bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .service-bullets li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-top: 7px;
+  }
+  .service-bullets.on-dark li { color: rgba(255,255,255,0.65); }
+  .service-bullets.on-dark li::before { background: var(--accent-light); }
+  .service-bullets.on-light li { color: var(--ink-mid); }
+  .service-bullets.on-light li::before { background: var(--accent); }
+
+  .service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 12px;
+    transition: gap 0.2s;
+  }
+  .service-link.on-dark { color: var(--accent-light); }
+  .service-link.on-light { color: var(--accent); }
+  .service-link:hover { gap: 14px; }
+
+  .se-diagram {
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+    position: relative;
+    overflow: hidden;
+    padding: 40px;
+  }
+  .se-diagram.light-bg {
+    background: var(--bg-off);
+    border-left: 1px solid var(--border);
+  }
+
+  .services-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .service-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+  .service-card:hover {
+    box-shadow: 0 12px 40px rgba(37,99,235,0.12);
+    transform: translateY(-4px);
+  }
+  .service-card-diagram {
+    height: 220px;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .service-card-body {
+    padding: 40px;
+    background: var(--bg-off);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* ─── PROCESS ─── */
+  #process {
+    background: var(--bg-dark);
+    padding: 100px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  #process .section-title { color: #fff; }
+  #process .section-tag { color: var(--accent-light); }
+
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .process-step {
+    padding: 48px 36px;
+    background: rgba(255,255,255,0.02);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+    cursor: default;
+  }
+  .process-step:last-child { border-right: none; }
+  .process-step:hover { background: rgba(37,99,235,0.1); }
+
+  .process-step-num {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.06);
+    line-height: 1;
+    margin-bottom: 24px;
+    letter-spacing: -0.04em;
+  }
+  .process-step-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .process-step-desc {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ─── CTA ─── */
+  #cta {
+    background: var(--accent);
+    padding: 100px 80px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: center;
+  }
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .cta-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.75);
+    margin-top: 12px;
+    font-weight: 300;
+  }
+  .btn-white {
+    background: #fff;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 16px 36px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--bg-dark);
+    padding: 56px 80px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: start;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .footer-brand span { color: var(--accent-light); }
+  .footer-desc {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.4);
+    max-width: 320px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .footer-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+    margin-top: 8px;
+  }
+  .footer-links a {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    font-weight: 400;
+    transition: color 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .footer-links a:hover { color: var(--accent-light); }
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.2);
+    margin-top: 32px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 60px 24px; }
+    .hero-right { display: none; }
+    #about { grid-template-columns: 1fr; padding: 60px 24px; gap: 24px; }
+    #services { padding: 60px 24px; }
+    .service-engineering { grid-template-columns: 1fr; }
+    .services-row-2 { grid-template-columns: 1fr; }
+    #process { padding: 60px 24px; }
+    .process-grid { grid-template-columns: 1fr 1fr; }
+    #cta { grid-template-columns: 1fr; padding: 60px 24px; gap: 28px; }
+    footer { grid-template-columns: 1fr; padding: 48px 24px; }
+    .footer-links { flex-wrap: wrap; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a class="nav-logo" href="#">Inno<span>Saic</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">How We Work</a></li>
+    <li><a href="#cta" class="nav-cta">Get in touch</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">Data Intelligence Platform</div>
+    <h1 class="hero-h1">
+      From raw data<br/>to <span class="accent-word">real decisions</span>
+    </h1>
+    <p class="hero-sub">
+      We build end-to-end data systems that automate workflows, streamline migration, and turn complex datasets into confident, scalable decisions.
+    </p>
+    <div class="hero-actions">
+      <a href="#services" class="btn-primary">Explore our services</a>
+      <a href="#about" class="btn-ghost">
+        About InnoSaic
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-viz" id="hero-viz"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-label reveal">Unlock<br/><span>Your Data</span></div>
+  <div class="about-body reveal reveal-delay-2">
+    At <strong>InnoSaic</strong>, we help businesses unlock the full value of their data through automation and intelligent insights. We specialize in end-to-end data solutions that automate workflows, streamline operations, and empower smarter decision-making. From data cleaning and pipeline automation to advanced visualization and insight delivery, our team builds <strong>precise, scalable solutions</strong> tailored to your unique business needs.
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-header reveal">
+    <span class="section-tag">What we do</span>
+    <h2 class="section-title">Our Services</h2>
+  </div>
+
+  <!-- 01 Data Engineering -->
+  <div class="service-engineering reveal">
+    <div class="se-content dark">
+      <span class="service-number on-dark">01 / Data Engineering</span>
+      <h3 class="service-name on-dark">Build the foundation for scalable, reliable data systems.</h3>
+      <p class="service-tagline on-dark">We architect and build robust data pipelines, warehouses, and infrastructure — so your team always has clean, reliable, timely data to work with.</p>
+      <ul class="service-bullets on-dark">
+        <li>End-to-end pipeline design &amp; orchestration</li>
+        <li>Data warehouse &amp; lakehouse architecture</li>
+        <li>Real-time streaming &amp; batch processing</li>
+        <li>Data quality monitoring &amp; alerting</li>
+      </ul>
+      <a href="#cta" class="service-link on-dark">
+        Learn more
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="se-diagram" id="diagram-eng"></div>
+  </div>
+
+  <!-- 02 + 03 row -->
+  <div class="services-row-2" style="margin-top:24px;">
+
+    <!-- 02 Data Migration -->
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-card-diagram" id="diagram-mig"></div>
+      <div class="service-card-body">
+        <span class="service-number on-light">02 / Data Migration</span>
+        <h3 class="service-name on-light">Seamless, secure and interference-free migration.</h3>
+        <p class="service-tagline on-light">Move your data across platforms with zero disruption. We plan, validate, and execute migrations that keep your business running.</p>
+        <ul class="service-bullets on-light">
+          <li>Cloud-to-cloud &amp; on-prem migrations</li>
+          <li>Schema transformation &amp; data mapping</li>
+          <li>Rollback strategy &amp; zero-downtime cutovers</li>
+        </ul>
+        <a href="#cta" class="service-link on-light">
+          Learn more
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- 03 Analytics & Data Science -->
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-card-diagram" id="diagram-analytics"></div>
+      <div class="service-card-body">
+        <span class="service-number on-light">03 / Analytics &amp; Data Science</span>
+        <h3 class="service-name on-light">Turn raw data into real-world decisions.</h3>
+        <p class="service-tagline on-light">From dashboards to predictive models, we transform data into insights that drive strategy, reduce costs, and surface new opportunities.</p>
+        <ul class="service-bullets on-light">
+          <li>Business intelligence &amp; dashboards</li>
+          <li>Predictive &amp; prescriptive modelling</li>
+          <li>ML pipelines &amp; model deployment</li>
+        </ul>
+        <a href="#cta" class="service-link on-light">
+          Learn more
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="section-header reveal">
+    <span class="section-tag">How we work</span>
+    <h2 class="section-title">Our Process</h2>
+  </div>
+  <div class="process-grid">
+    <div class="process-step reveal reveal-delay-1">
+      <div class="process-step-num">01</div>
+      <div class="process-step-title">Discover</div>
+      <div class="process-step-desc">We audit your existing data infrastructure, sources, and goals. No assumptions — just a clear picture of where you are and where you need to go.</div>
+    </div>
+    <div class="process-step reveal reveal-delay-2">
+      <div class="process-step-num">02</div>
+      <div class="process-step-title">Architect</div>
+      <div class="process-step-desc">We design a tailored solution — pipelines, models, migration strategy — built to scale with your business and integrate with your existing stack.</div>
+    </div>
+    <div class="process-step reveal reveal-delay-3">
+      <div class="process-step-num">03</div>
+      <div class="process-step-title">Build</div>
+      <div class="process-step-desc">Our engineers implement with precision, using modern tooling and best practices. Iterative delivery means you see progress early and often.</div>
+    </div>
+    <div class="process-step reveal reveal-delay-4">
+      <div class="process-step-num">04</div>
+      <div class="process-step-title">Optimise</div>
+      <div class="process-step-desc">Post-launch, we monitor performance, refine models, and ensure your data systems evolve as your business grows.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="reveal">
+    <div class="cta-title">Ready to unlock the value in your data?</div>
+    <div class="cta-sub">Talk to us about your next data challenge. No commitment — just a conversation.</div>
+  </div>
+  <a href="mailto:admin@innosaic.com" class="btn-white reveal reveal-delay-2">Start a conversation →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Inno<span>Saic</span></div>
+    <div class="footer-desc">End-to-end data solutions — engineering, migration, analytics, and science — tailored to your business.</div>
+    <div class="footer-copy">© 2025 InnoSaic. All rights reserved.</div>
+  </div>
+  <nav>
+    <ul class="footer-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#cta">Contact</a></li>
+    </ul>
+  </nav>
+</footer>
+
+<script>
+// ─── CANVAS ANIMATIONS ───
+(function() {
+  const { useState, useEffect, useRef } = React;
+
+  function HeroViz() {
+    const canvasRef = useRef(null);
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width = 420;
+      const H = canvas.height = 380;
+      const nodes = [
+        {x:80, y:100, label:'Sources'},{x:80, y:200, label:''},{x:80, y:300, label:''},
+        {x:210, y:150, label:'Pipeline'},{x:210, y:250, label:''},
+        {x:340, y:100, label:'Insights'},{x:340, y:200, label:''},{x:340, y:300, label:''},
+      ];
+      const edges = [[0,3],[1,3],[2,4],[3,5],[3,6],[4,6],[4,7]];
+      let t = 0, animId;
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const rgb = '59,130,246';
+        edges.forEach(([a, b], i) => {
+          const progress = ((t * 0.6 + i * 18) % 60) / 60;
+          const ax = nodes[a].x, ay = nodes[a].y, bx = nodes[b].x, by = nodes[b].y;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${rgb},0.15)`;
+          ctx.lineWidth = 1.5;
+          ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+          const px = ax + (bx - ax) * progress, py = ay + (by - ay) * progress;
+          ctx.beginPath();
+          ctx.arc(px, py, 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb},0.85)`; ctx.fill();
+        });
+        nodes.forEach(({x, y, label}, i) => {
+          const pulse = Math.sin(t * 0.04 + i * 0.8) * 0.3 + 0.7;
+          ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb},${pulse * 0.15})`; ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb},${pulse})`; ctx.fill();
+          if (label) {
+            ctx.font = '500 11px DM Sans, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x, y - 18);
+          }
+        });
+        t++; animId = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(animId);
+    }, []);
+    return React.createElement('canvas', { ref: canvasRef, style: {opacity: 0.9} });
+  }
+
+  function EngDiagram() {
+    const canvasRef = useRef(null);
+    useEffect(() => {
+      const el = canvasRef.current;
+      if (!el) return;
+      const ctx = el.getContext('2d');
+      const W = el.width = el.offsetWidth || 500;
+      const H = el.height = el.offsetHeight || 360;
+      let t = 0, animId;
+      const layers = [
+        { label:'Raw Sources', y:H*0.15, items:['Kafka','S3','APIs'] },
+        { label:'Transform Layer', y:H*0.45, items:['dbt','Spark','Airflow'] },
+        { label:'Data Warehouse', y:H*0.78, items:['Snowflake','BigQuery','Redshift'] },
+      ];
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const cols = layers[0].items.length;
+        const colW = W / (cols + 1);
+        layers.forEach((layer, li) => {
+          if (li < layers.length - 1) {
+            const nextLayer = layers[li + 1];
+            layer.items.forEach((_, ci) => {
+              const x1 = colW * (ci + 1), y1 = layer.y + 18;
+              nextLayer.items.forEach((_, cj) => {
+                const x2 = colW * (cj + 1), y2 = nextLayer.y - 18;
+                const progress = ((t * 0.5 + li * 20 + ci * 7 + cj * 5) % 50) / 50;
+                const px = x1 + (x2 - x1) * progress, py = y1 + (y2 - y1) * progress;
+                ctx.beginPath(); ctx.strokeStyle = 'rgba(59,130,246,0.08)';
+                ctx.lineWidth = 1; ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(59,130,246,0.7)'; ctx.fill();
+              });
+            });
+          }
+          layer.items.forEach((item, ci) => {
+            const x = colW * (ci + 1), y = layer.y;
+            const glow = Math.sin(t * 0.03 + ci * 1.2 + li * 2) * 0.2 + 0.8;
+            ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(37,99,235,${glow * 0.15})`; ctx.fill();
+            ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(37,99,235,${glow * 0.8})`; ctx.fill();
+            ctx.font = '600 10px DM Sans, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(item, x, y);
+          });
+          ctx.font = '500 11px DM Sans, sans-serif';
+          ctx.fillStyle = 'rgba(255,255,255,0.3)';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+          ctx.fillText(layer.label, 12, layer.y);
+        });
+        t++; animId = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(animId);
+    }, []);
+    return React.createElement('canvas', { ref: canvasRef, style: { width:'100%', height:'100%', display:'block' } });
+  }
+
+  function MigDiagram() {
+    const canvasRef = useRef(null);
+    useEffect(() => {
+      const el = canvasRef.current;
+      if (!el) return;
+      const ctx = el.getContext('2d');
+      el.width = el.offsetWidth || 400;
+      el.height = el.offsetHeight || 220;
+      const W = el.width, H = el.height;
+      let t = 0, animId;
+      const items = Array.from({length:40}, () => ({
+        x: Math.random() * W * 0.38 + 10,
+        y: Math.random() * H * 0.8 + H * 0.1,
+        speed: Math.random() * 0.8 + 0.4,
+        offset: Math.random() * 100
+      }));
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(0, H*0.1, W*0.4, H*0.8);
+        ctx.fillStyle = 'rgba(37,99,235,0.08)'; ctx.fillRect(W*0.6, H*0.1, W*0.4, H*0.8);
+        ctx.font = '500 10px DM Sans, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.textAlign = 'center';
+        ctx.fillText('SOURCE', W*0.2, H*0.08);
+        ctx.fillText('TARGET', W*0.8, H*0.08);
+        items.forEach(item => {
+          const prog = ((t * item.speed * 0.01 + item.offset) % 1);
+          const x = item.x + (W*0.6 + W*0.3*Math.random()*0.1 - item.x) * Math.pow(prog, 2);
+          const alpha = prog < 0.5 ? prog * 2 : (1 - prog) * 2;
+          const arriving = prog > 0.7;
+          ctx.beginPath(); ctx.arc(x, item.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = arriving ? `rgba(59,130,246,${alpha*0.9})` : `rgba(255,255,255,${alpha*0.3})`;
+          ctx.fill();
+        });
+        const arrowPulse = Math.sin(t * 0.04) * 0.3 + 0.7;
+        ctx.beginPath(); ctx.strokeStyle = `rgba(59,130,246,${arrowPulse*0.8})`;
+        ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+        ctx.moveTo(W*0.42, H/2); ctx.lineTo(W*0.58, H/2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(W*0.58, H/2-6); ctx.lineTo(W*0.63, H/2); ctx.lineTo(W*0.58, H/2+6);
+        ctx.strokeStyle = `rgba(59,130,246,${arrowPulse})`; ctx.lineWidth = 2; ctx.stroke();
+        t++; animId = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(animId);
+    }, []);
+    return React.createElement('canvas', { ref: canvasRef, style: { width:'100%', height:'100%', display:'block' } });
+  }
+
+  function AnalyticsDiagram() {
+    const canvasRef = useRef(null);
+    useEffect(() => {
+      const el = canvasRef.current;
+      if (!el) return;
+      const ctx = el.getContext('2d');
+      el.width = el.offsetWidth || 400;
+      el.height = el.offsetHeight || 220;
+      const W = el.width, H = el.height;
+      let t = 0, animId;
+      const data = Array.from({length:24}, () => ({
+        base: 0.3 + Math.random() * 0.5,
+        freq: Math.random() * 0.08 + 0.02,
+        phase: Math.random() * Math.PI * 2
+      }));
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const padL=20, padR=20, padT=20, padB=30;
+        const cW = W-padL-padR, cH = H-padT-padB;
+        for (let i = 0; i <= 4; i++) {
+          const y = padT + cH * (i/4);
+          ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,0.05)';
+          ctx.lineWidth=1; ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+        }
+        const bW = (cW / data.length) * 0.6;
+        data.forEach((d, i) => {
+          const val = d.base + Math.sin(t*d.freq + d.phase)*0.15;
+          const x = padL + (cW/data.length)*i + (cW/data.length)*0.2;
+          const bH = val*cH;
+          const alpha = 0.3 + (i/data.length)*0.5;
+          ctx.fillStyle = `rgba(37,99,235,${alpha})`;
+          ctx.fillRect(x, padT+cH-bH, bW, bH);
+        });
+        ctx.beginPath(); ctx.lineWidth=2; ctx.strokeStyle='rgba(96,165,250,0.9)';
+        data.forEach((d, i) => {
+          const val = d.base + Math.sin(t*d.freq + d.phase)*0.15;
+          const x = padL + (cW/data.length)*i + (cW/data.length)*0.5;
+          const y = padT + cH - val*cH;
+          i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+        t++; animId = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(animId);
+    }, []);
+    return React.createElement('canvas', { ref: canvasRef, style: { width:'100%', height:'100%', display:'block' } });
+  }
+
+  // Mount all diagrams
+  [
+    { id:'hero-viz', comp:HeroViz },
+    { id:'diagram-eng', comp:EngDiagram },
+    { id:'diagram-mig', comp:MigDiagram },
+    { id:'diagram-analytics', comp:AnalyticsDiagram },
+  ].forEach(({ id, comp }) => {
+    const el = document.getElementById(id);
+    if (el) ReactDOM.createRoot(el).render(React.createElement(comp));
+  });
+})();
+
+// ─── SCROLL REVEAL ───
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ─── NAV SCROLL STATE ───
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// Hero reveals immediate
+document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+</script>
+</body>
+</html>
