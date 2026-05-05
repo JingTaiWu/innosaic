@@ -710,7 +710,9 @@
     .nav-links { display: none; }
     #hero { grid-template-columns: 1fr; }
     .hero-left { padding: 60px 24px; }
-    .hero-right { display: none; }
+    .hero-right { padding: 0 24px 60px; justify-content: center; }
+    .hero-logo-feature { width: 160px; height: 160px; }
+    .hero-viz { display: none; }
     #about { grid-template-columns: 1fr; padding: 60px 24px; gap: 24px; }
     #services { padding: 60px 24px; }
     .service-engineering { grid-template-columns: 1fr; }
@@ -909,6 +911,7 @@
 </footer>
 
 <!-- REACT APP: Diagrams + Tweaks -->
+<script>
 const { useEffect, useRef } = React;
 
 // ─── HERO VISUALIZATION ───
